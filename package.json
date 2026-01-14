@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-hubstaff2",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "description": "Powerful Hubstaff API v2 integration for n8n with automatic token refresh, member management, and comprehensive workflow automation",
   "keywords": [
     "n8n-community-node-package",
