@@ -1,0 +1,55 @@
+{
+  "name": "n8n-nodes-hubstaff2",
+  "version": "0.3.14",
+  "description": "Powerful Hubstaff API v2 integration for n8n with automatic token refresh, member management, and comprehensive workflow automation",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "hubstaff",
+    "time-tracking",
+    "project-management",
+    "workflow",
+    "automation",
+    "api",
+    "integration"
+  ],
+  "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/n8n-nodes-hubstaff2.git"
+  },
+  "homepage": "https://github.com/your-username/n8n-nodes-hubstaff2#readme",
+  "bugs": {
+    "url": "https://github.com/your-username/n8n-nodes-hubstaff2/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc || echo \"Skipping TypeScript build (no tsconfig)\"",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "hubstaff.svg"
+  ],
+  "n8n": {
+    "nodes": [
+      "dist/nodes/Hubstaff.node.js"
+    ],
+    "credentials": [
+      "dist/credentials/HubstaffApi.credentials.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "n8n-core": "^0.150.0",
+    "n8n-workflow": "^0.150.0",
+    "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "n8n-core": "*",
+    "n8n-workflow": "*"
+  }
+}

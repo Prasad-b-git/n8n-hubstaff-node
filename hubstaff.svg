@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="blue1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blue2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="blue3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Black background with rounded corners -->
+  <rect width="64" height="64" rx="12" fill="#000000"/>
+  
+  <!-- Top-left petal - vibrant medium blue -->
+  <path d="M 32 32
+           A 10 10 0 0 1 22 22
+           A 12 12 0 0 1 18 18
+           A 16 16 0 0 1 32 18
+           A 10 10 0 0 0 32 32 Z" 
+        fill="url(#blue1)"/>
+  
+  <!-- Top-right petal - light sky blue -->
+  <path d="M 32 32
+           A 10 10 0 0 0 42 22
+           A 12 12 0 0 0 46 18
+           A 16 16 0 0 0 32 18
+           A 10 10 0 0 1 32 32 Z" 
+        fill="url(#blue2)"/>
+  
+  <!-- Bottom petal - dark indigo -->
+  <path d="M 32 32
+           A 10 10 0 0 0 22 42
+           A 12 12 0 0 0 18 46
+           A 16 16 0 0 0 32 46
+           A 10 10 0 0 1 32 32 Z" 
+        fill="url(#blue3)"/>
+  
+  <!-- Central white circle -->
+  <circle cx="32" cy="32" r="10" fill="#ffffff"/>
+</svg>

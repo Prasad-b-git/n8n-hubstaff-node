@@ -1,0 +1,1334 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.mapping_exists}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "56fa24a3-c506-41a6-b51c-9452c7eceb5b",
+      "name": "Project Mapping Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2272,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare Excel data for issue path\nconst issueData = $node[\"Check Issue & User Mapping\"].json;\nconst hubstaffProject = $json.project || $json;\n\nreturn {\n  plane_project_id: issueData.plane_project_id,\n  plane_project_name: issueData.plane_project_name,\n  hubstaff_project_id: hubstaffProject.id,\n  created_at: new Date().toISOString()\n};"
+      },
+      "id": "4973b9e6-c819-4101-b6ee-6d4fe6535ad8",
+      "name": "Prepare Excel Data (Issue Path)",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        1312
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "users",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{E39B388B-8865-4F2A-A4E4-B7D95FDE05EF}",
+          "mode": "list",
+          "cachedResultName": "project_mapping",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!H1:K8"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "plane_project_id",
+              "fieldValue": "={{ $json.plane_project_id }}"
+            },
+            {
+              "column": "plane_project_name",
+              "fieldValue": "={{ $json.plane_project_name }}"
+            },
+            {
+              "column": "hubstaff_project_id",
+              "fieldValue": "={{ $json.hubstaff_project_id }}"
+            },
+            {
+              "column": "created_at",
+              "fieldValue": "={{ $json.created_at }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6bed20d-3db9-4b32-81c9-1411584287f8",
+      "name": "Add to Excel (Issue Path)",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        2992,
+        1296
+      ],
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.user_found}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "d03ee079-bc7b-42d9-a92c-c48585e3ff9b",
+      "name": "User Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3584,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log task creation without user\nconst taskData = $json;\n\nreturn {\n  success: false,\n  event_type: 'issue',\n  message: 'User not found in mapping',\n  assignee_email: taskData.assignee_email,\n  plane_issue_id: taskData.plane_issue_id,\n  plane_project_id: taskData.plane_project_id,\n  error: 'No Hubstaff user mapping found for: ' + taskData.assignee_email,\n  action_needed: 'Please sync users or add mapping manually'\n};"
+      },
+      "id": "1899c121-5357-4d83-b152-5f98c69e7142",
+      "name": "Log User Not Found",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3984,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "plane-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "007dbb9e-185f-4bf8-9c0f-97e445f25e63",
+      "name": "Webhook - Plane Events1",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        1456
+      ],
+      "webhookId": "unified-plane-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.process}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "a37ef270-ae19-463a-a58a-3f201ef39eef",
+      "name": "Should Process?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        96,
+        1488
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.mapping_exists}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "989d18b8-5356-48b1-a3c4-858ddea04730",
+      "name": "Project Exists?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare Excel data for new project\nconst projectData = $('Check Project Exists1').item.json;\nconst hubstaffProject = $json.project || $json;\n\nreturn {\n  plane_project_id: projectData.plane_project_id,\n  plane_project_name: projectData.plane_project_name,\n  hubstaff_project_id: hubstaffProject.id,\n  created_at: new Date().toISOString()\n};"
+      },
+      "id": "5fabb94f-3d88-4f75-8f36-53f7fcbea629",
+      "name": "Prepare Excel Data (Project)1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        1056
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "users",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{E39B388B-8865-4F2A-A4E4-B7D95FDE05EF}",
+          "mode": "list",
+          "cachedResultName": "project_mapping",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!H1:K8"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "plane_project_id",
+              "fieldValue": "={{ $json.plane_project_id }}"
+            },
+            {
+              "column": "plane_project_name",
+              "fieldValue": "={{ $json.plane_project_name }}"
+            },
+            {
+              "column": "hubstaff_project_id",
+              "fieldValue": "={{ $json.hubstaff_project_id }}"
+            },
+            {
+              "column": "created_at",
+              "fieldValue": "={{ $json.created_at }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7ed067f3-6460-43f9-a070-5fd6318cafa2",
+      "name": "Add to Excel (Project)1",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        1056
+      ],
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge task data with project and user info\nconst issueData = $input.first().json;\n\n// Get Hubstaff project ID\nlet hubstaffProjectId;\n\nif (issueData.mapping_exists) {\n  // Project mapping already exists\n  hubstaffProjectId = issueData.hubstaff_project_id;\n} else {\n  // Project was just created and added to Excel\n  // The hubstaff_project_id should now be in the input data after going through the Excel add step\n  hubstaffProjectId = issueData.hubstaff_project_id;\n}\n\nreturn {\n  ...issueData,\n  hubstaff_project_id: hubstaffProjectId\n};"
+      },
+      "id": "daced338-5781-4a51-992e-f96456bc9e70",
+      "name": "Merge Task Data1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare task data with mapped user\nconst taskData = $json;\n\nif (!taskData.hubstaff_user_id) {\n  throw new Error('No Hubstaff user found for email: ' + taskData.assignee_email);\n}\n\nreturn {\n  summary: taskData.summary,\n  description: taskData.description || '',\n  assignee_id: taskData.hubstaff_user_id,\n  hubstaff_project_id: taskData.hubstaff_project_id,\n  plane_issue_id: taskData.plane_issue_id,\n  plane_project_id: taskData.plane_project_id,\n  priority: taskData.priority\n};"
+      },
+      "id": "5688122c-b307-4122-9899-f359ca9b324d",
+      "name": "Prepare Task Data1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "projectId": "={{ $json.hubstaff_project_id }}",
+        "summary": "={{ $json.summary }}",
+        "description": "={{ $json.description }}",
+        "assignee_id": "={{ $json.assignee_id }}"
+      },
+      "type": "n8n-nodes-hubstaff.hubstaff",
+      "typeVersion": 1,
+      "position": [
+        4048,
+        640
+      ],
+      "id": "08ab4359-bf93-40c2-bc62-a58f131e1c61",
+      "name": "Create Hubstaff Task1",
+      "credentials": {
+        "hubstaffApi": {
+          "id": "QfzrHDb4ItsEk21S",
+          "name": "sayali"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log project success\nconst inputData = $input.first().json;\nconst action = inputData.mapping_exists ? 'existing' : 'created';\n\nreturn {\n  success: true,\n  event_type: 'project',\n  message: 'Project synced successfully',\n  plane_project_id: inputData.plane_project_id,\n  plane_project_name: inputData.plane_project_name,\n  hubstaff_project_id: inputData.existing_hubstaff_id || inputData.hubstaff_project_id,\n  action: action,\n  synced_at: new Date().toISOString()\n};"
+      },
+      "id": "72340756-0a3a-4463-bbfe-d729faf9c404",
+      "name": "Log Project Success1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log task success AND save task mapping\nconst hubstaffTask = $json;\nconst taskData = $node[\"Prepare Task Data1\"].json;\n\n// Prepare output for logging\nconst logData = {\n  success: true,\n  event_type: 'issue',\n  message: 'Task created successfully',\n  hubstaff_task_id: hubstaffTask.task ? hubstaffTask.task.id : hubstaffTask.id,\n  hubstaff_project_id: taskData.hubstaff_project_id,\n  plane_issue_id: taskData.plane_issue_id,\n  plane_project_id: taskData.plane_project_id,\n  task_summary: taskData.summary,\n  assignee_id: taskData.assignee_id,\n  assignee_email: $node[\"Check Issue & User Mapping\"].json.assignee_email,\n  created_at: new Date().toISOString()\n};\n\nreturn logData;"
+      },
+      "id": "afaabb19-3972-4691-9c7b-f2dc16e1233b",
+      "name": "Log Task Success1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        4240,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "id": "571a6b81-884f-4c02-bdad-00fde45726f9",
+      "name": "Success Response1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        6144,
+        1136
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Handle skipped events\nreturn {\n  success: false,\n  message: $json.message || 'Event not processed',\n  skipped: true\n};"
+      },
+      "id": "27356142-3ee3-4c8a-8aa0-f71ddc747626",
+      "name": "Log Skip1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "id": "9113422a-484a-4466-a8f7-7ac03c80d6b1",
+      "name": "Skip Response1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "worksheet",
+        "operation": "readRows",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "users",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!A1"
+        },
+        "options": {}
+      },
+      "id": "09a03263-06a8-4bd8-a2bb-2fbd502bc8af",
+      "name": "Read Combined Mapping",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        1216
+      ],
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "worksheet",
+        "operation": "readRows",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "users",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!A1"
+        },
+        "options": {}
+      },
+      "id": "ec938aa9-8163-43c0-ba7f-38aa6c507ffa",
+      "name": "Read Excel Project Mapping1",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        1040
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "project",
+        "projectOperation": "create",
+        "name": "={{ $json.plane_project_name }}",
+        "description": "Project synced from Plane",
+        "billable": false,
+        "pay_rate": 1,
+        "bill_rate": 1,
+        "additionalFields": {
+          "members": {
+            "memberValues": [
+              {
+                "user_id": "31621",
+                "role": "manager",
+                "pay_rate": 1,
+                "bill_rate": 1
+              },
+              {
+                "user_id": "=800736",
+                "role": "manager",
+                "pay_rate": 1,
+                "bill_rate": 1
+              },
+              {
+                "user_id": "={{ $json.actor_hubstaff_id }}",
+                "pay_rate": 1,
+                "bill_rate": 1
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-hubstaff1.hubstaff1",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        1056
+      ],
+      "id": "6ef03ac6-6585-42cf-89fe-0cc2ed80d8fa",
+      "name": "Create Hubstaff Project1",
+      "credentials": {
+        "hubstaffApi1": {
+          "id": "umuZKJcN78M23uhY",
+          "name": "Hubstaff V2 account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "project",
+        "projectOperation": "create",
+        "name": "={{ $json.plane_project_name }}",
+        "description": "Project synced from Plane (Issue path)",
+        "billable": false,
+        "pay_rate": 1,
+        "bill_rate": 1,
+        "additionalFields": {
+          "members": {
+            "memberValues": [
+              {
+                "user_id": "=31621",
+                "role": "manager",
+                "pay_rate": 1,
+                "bill_rate": 1
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-hubstaff1.hubstaff1",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        1376
+      ],
+      "id": "13a05175-b59f-4b3d-a856-af337a86e850",
+      "name": "Create Project (for Issue)1",
+      "credentials": {
+        "hubstaffApi1": {
+          "id": "umuZKJcN78M23uhY",
+          "name": "Hubstaff V2 account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Find Hubstaff project ID and user mapping\nconst eventData = $('Switch Event Type').first().json;\n\n// All rows now come from a single worksheet that stores both project and user mappings\nconst allInputs = $input.all();\n\n// Split rows into project vs user data based on the fields they expose\n// Project mappings have: plane_project_id, hubstaff_project_id\n// User mappings have: email, hid, pname, pid, hname\n\nconst projectMappings = allInputs.filter(row => \n  row.json.plane_project_id !== undefined && row.json.hubstaff_project_id !== undefined\n);\n\nconst userMappings = allInputs.filter(row => \n  row.json.email !== undefined && row.json.hid !== undefined\n);\n\n// Find project mapping\nconst projectMapping = projectMappings.find(row => \n  row.json.plane_project_id === eventData.plane_project_id\n);\n\n// Find user mapping by assignee email (for task)\nlet hubstaffUserId = null;\nlet userFound = false;\n\nif (eventData.assignee_email) {\n  const userMapping = userMappings.find(row => \n    row.json.email && row.json.email.toLowerCase().trim() === eventData.assignee_email.toLowerCase().trim()\n  );\n  \n  if (userMapping && userMapping.json.hid) {\n    hubstaffUserId = userMapping.json.hid;\n    userFound = true;\n  }\n}\n\n// Find actor's Hubstaff user ID (for project creation if needed)\nlet actorHubstaffId = null;\nif (eventData.actor_email) {\n  const actorMapping = userMappings.find(row => \n    row.json.email && row.json.email.toLowerCase().trim() === eventData.actor_email.toLowerCase().trim()\n  );\n  \n  if (actorMapping && actorMapping.json.hid) {\n    actorHubstaffId = String(actorMapping.json.hid);\n  }\n}\n\nreturn {\n  ...eventData,\n  hubstaff_project_id: projectMapping ? projectMapping.json.hubstaff_project_id : null,\n  mapping_exists: !!projectMapping,\n  hubstaff_user_id: hubstaffUserId,\n  user_found: userFound,\n  assignee_email: eventData.assignee_email || null,\n  actor_hubstaff_id: actorHubstaffId\n};"
+      },
+      "id": "bd1f9e4b-456e-4530-8a01-d10de0392fc9",
+      "name": "Check Issue & User Mapping",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        1296
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Check if project exists and find actor's Hubstaff ID\nconst eventData = $('Route Event Type1').first().json;\nconst excelData = $input.all();\n\n// Find project mapping\nconst existingMapping = excelData.find(row => \n  row.json.plane_project_id && \n  row.json.plane_project_id === eventData.plane_project_id &&\n  row.json.plane_project_id !== \"\"\n);\n\n// Find actor's Hubstaff user ID\nlet actorHubstaffId = null;\nif (eventData.actor_email) {\n  const userMapping = excelData.find(row => \n    row.json.email && \n    row.json.email.toLowerCase().trim() === eventData.actor_email.toLowerCase().trim() &&\n    row.json.hid\n  );\n  \n  if (userMapping) {\n    actorHubstaffId = String(userMapping.json.hid);\n  }\n}\n\nif (existingMapping) {\n  return {\n    ...eventData,\n    mapping_exists: true,\n    existing_hubstaff_id: existingMapping.json.hubstaff_project_id,\n    actor_hubstaff_id: actorHubstaffId\n  };\n} else {\n  return {\n    ...eventData,\n    mapping_exists: false,\n    hubstaff_project_id: null,\n    actor_hubstaff_id: actorHubstaffId\n  };\n}"
+      },
+      "id": "8b36ad34-e539-4ca0-b9ea-2ea992df3c3e",
+      "name": "Check Project Exists1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Route webhook events based on type\nconst webhookData = $json.body;\nconst event = webhookData.event;\nconst action = webhookData.action;\nconst activity = webhookData.activity;\n\nif (event === 'project' && (action === 'created' || action === 'updated')) {\n  // Project event\n  const projectData = webhookData.data;\n  return {\n    event_type: 'project',\n    action: action,\n    process: true,\n    plane_project_id: projectData.id,\n    plane_project_name: projectData.name,\n    plane_identifier: projectData.identifier,\n    workspace_id: webhookData.workspace_id,\n    created_at: projectData.created_at,\n    updated_at: projectData.updated_at,\n    actor_email: webhookData.activity?.actor?.email || null\n  };\n} else if (event === 'issue' && action === 'created') {\n  // Issue/Task creation event\n  const issueData = webhookData.data;\n  const assigneeEmail = issueData.assignees && issueData.assignees[0] ? issueData.assignees[0].email : null;\n  \n  return {\n    event_type: 'issue',\n    action: action,\n    process: true,\n    summary: issueData.name || 'Untitled Task',\n    description: issueData.description_stripped || '',\n    assignee_email: assigneeEmail,\n    plane_issue_id: issueData.id,\n    plane_project_id: issueData.project,\n    plane_project_name: issueData.project_name || issueData.project,\n    priority: issueData.priority || 'none',\n    created_at: issueData.created_at\n  };\n} else if (event === 'issue' && action === 'updated' && activity && activity.field === 'assignee_ids') {\n  // Issue assignee update event\n  const issueData = webhookData.data;\n  const newAssignees = activity.new_value || [];\n  const oldAssignees = activity.old_value || [];\n  \n  // Determine if it's addition or removal\n  const isAddition = newAssignees.length > oldAssignees.length;\n  const isRemoval = newAssignees.length < oldAssignees.length;\n  \n  // Get assignee emails from the data\n  const assigneeEmails = issueData.assignees ? issueData.assignees.map(a => a.email) : [];\n  \n  return {\n    event_type: 'issue_assignee_updated',\n    action: 'assignee_updated',\n    process: true,\n    is_assignee_addition: isAddition,\n    is_assignee_removal: isRemoval,\n    assignee_emails: assigneeEmails,\n    new_assignee_ids: newAssignees,\n    old_assignee_ids: oldAssignees,\n    plane_issue_id: issueData.id,\n    plane_project_id: issueData.project,\n    plane_project_name: issueData.project_name || issueData.project,\n    summary: issueData.name,\n    actor_email: activity.actor?.email || null\n  };\n} else {\n  return {\n    event_type: event,\n    action: action,\n    process: false,\n    message: `Event not processed: ${event} - ${action}`\n  };\n}"
+      },
+      "id": "1a6267c8-bec4-4479-8e0a-627f6b59690b",
+      "name": "Route Event Type1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json.event_type}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "project"
+            },
+            {
+              "value2": "issue",
+              "output": 1
+            },
+            {
+              "value2": "issue_assignee_updated",
+              "output": 2
+            }
+          ]
+        }
+      },
+      "id": "0441db97-c03a-4f7b-8c8f-56537a6e57be",
+      "name": "Switch Event Type1",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        832,
+        1424
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{961CD859-DC17-4BCF-84D6-5910816754E6}",
+          "mode": "list",
+          "cachedResultName": "task_mapping",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=task_mapping!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{2DCDE664-57B7-4059-9AD8-1AD3EB19CA99}",
+          "mode": "list",
+          "cachedResultName": "Table5",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=task_mapping!A1:I2"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "plane_issue_id",
+              "fieldValue": "={{ $json.plane_issue_id }}"
+            },
+            {
+              "column": "plane_project_id",
+              "fieldValue": "={{ $json.plane_project_id }}"
+            },
+            {
+              "column": "hubstaff_task_id",
+              "fieldValue": "={{ $json.hubstaff_task_id }}"
+            },
+            {
+              "column": "hubstaff_project_id",
+              "fieldValue": "={{ $json.hubstaff_project_id }}"
+            },
+            {
+              "column": "task_name",
+              "fieldValue": "={{ $json.task_summary }}"
+            },
+            {
+              "column": "current_assignee_email",
+              "fieldValue": "={{ $json.assignee_email }}"
+            },
+            {
+              "column": "hubstaff_assignee_id",
+              "fieldValue": "={{ $json.assignee_id }}"
+            },
+            {
+              "column": "created_at",
+              "fieldValue": "={{ $json.created_at }}"
+            },
+            {
+              "column": "last_synced_at",
+              "fieldValue": "={{ $json.created_at }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d1a59ba8-824d-4ecd-9349-02bae9c31ea5",
+      "name": "Save Task Mapping to Excel",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        4416,
+        368
+      ],
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "worksheet",
+        "operation": "readRows",
+        "workbook": {
+          "__rl": true,
+          "value": "01ZDOO74ZIXNFNT23AQRB2Z3TS4SRNNM35",
+          "mode": "list",
+          "cachedResultName": "n8n_plane_hubstaff",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{00000000-0001-0000-0000-000000000000}",
+          "mode": "list",
+          "cachedResultName": "users",
+          "cachedResultUrl": "https://techspawn0-my.sharepoint.com/personal/prasadb_techspawn_com/_layouts/15/Doc.aspx?sourcedoc=%7BD94ABB28-60EB-4384-ACEE-72E4A2D6B37D%7D&file=n8n_plane_hubstaff.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=users!A1"
+        },
+        "options": {}
+      },
+      "id": "59ef753d-d973-47c2-a24e-69d5a7fa30fb",
+      "name": "Read Mappings (Assignee Update)1",
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        1696
+      ],
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "8xFjoMRFyo2iqlfF",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.has_missing_users}}"
+            }
+          ]
+        }
+      },
+      "id": "712145aa-3930-42b4-ae49-f3874ccb2ec5",
+      "name": "All Users Mapped?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        1696
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "project",
+        "projectOperation": "get",
+        "projectId": "={{$json.hubstaff_project_id}}"
+      },
+      "type": "n8n-nodes-hubstaff1.hubstaff1",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        1584
+      ],
+      "id": "4293526b-5b6c-4fce-bb4e-17d5b3bc5316",
+      "name": "Get Hubstaff Project Details1",
+      "credentials": {
+        "hubstaffApi1": {
+          "id": "umuZKJcN78M23uhY",
+          "name": "Hubstaff V2 account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Check if users are already project members\nconst taskData = $node[\"Check Assignee Mappings\"].json;\nconst projectData = $json.project || $json;\n\n// Get current project members\nconst currentMembers = projectData.members || [];\nconst currentMemberIds = currentMembers.map(m => String(m.user_id));\n\n// Check which assignees need to be added\nconst usersToAdd = [];\nconst usersAlreadyMembers = [];\n\nfor (const assignee of taskData.assignee_mappings) {\n  if (currentMemberIds.includes(assignee.hubstaff_user_id)) {\n    usersAlreadyMembers.push(assignee);\n  } else {\n    usersToAdd.push(assignee);\n  }\n}\n\nreturn {\n  ...taskData,\n  project_name: projectData.name,\n  users_to_add: usersToAdd,\n  users_already_members: usersAlreadyMembers,\n  needs_member_addition: usersToAdd.length > 0\n};"
+      },
+      "id": "128747ce-4c8f-4ce0-b0cc-c5b51ec2bad0",
+      "name": "Check Project Members1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        1584
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.needs_member_addition}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "b1592e8f-55bd-4e91-963b-9a64c2934bcb",
+      "name": "Need to Add Members?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        1584
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare members payload for Hubstaff project update (add + remove)\nconst taskData = $json;\n\nconst usersToAdd = taskData.users_to_add || [];\nconst usersToRemove = taskData.users_to_remove || [];\n\nconst members = [];\n\n// Members to ADD (default role: user)\nfor (const user of usersToAdd) {\n  members.push({\n    user_id: Number(user.hubstaff_user_id),\n    role: user.role || 'user',\n    pay_rate: user.pay_rate != null ? Number(user.pay_rate) : 1,\n    bill_rate: user.bill_rate != null ? Number(user.bill_rate) : 1,\n  });\n}\n\n// Members to REMOVE\nfor (const user of usersToRemove) {\n  members.push({\n    user_id: Number(user.hubstaff_user_id),\n    role: 'remove',\n    pay_rate: null,\n    bill_rate: null,\n  });\n}\n\nreturn {\n  ...taskData,\n  members_payload: members\n};"
+      },
+      "id": "de410640-f4e6-44db-82c6-eb165d033f01",
+      "name": "Prepare Member Payload (Add/Remove)",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3312,
+        1488
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge data after member addition\nconst originalData = $node[\"Check Project Members\"].json;\nconst updateResult = $json;\n\nreturn {\n  ...originalData,\n  members_added: true,\n  update_result: updateResult\n};"
+      },
+      "id": "8ad4830d-ca64-4fb5-8693-40067f10f019",
+      "name": "Merge After Member Add1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3760,
+        1488
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log successful assignee sync\nconst taskData = $json;\n\nreturn {\n  success: true,\n  event_type: 'issue_assignee_updated',\n  message: 'Assignees synced successfully',\n  plane_issue_id: taskData.plane_issue_id,\n  plane_project_id: taskData.plane_project_id,\n  hubstaff_project_id: taskData.hubstaff_project_id,\n  assignees_synced: taskData.assignee_mappings,\n  members_added_to_project: taskData.members_added || false,\n  synced_at: new Date().toISOString()\n};"
+      },
+      "id": "928a9a80-6cd7-457f-8f90-8a0b13084e5f",
+      "name": "Log Assignee Sync Success1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        4048,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log missing users error\nconst taskData = $json;\n\nreturn {\n  success: false,\n  event_type: 'issue_assignee_updated',\n  message: 'Some users not found in mapping',\n  plane_issue_id: taskData.plane_issue_id,\n  missing_users: taskData.missing_users,\n  error: 'Cannot sync assignees - missing Hubstaff user mappings',\n  action_needed: 'Please add these users to Excel mapping: ' + taskData.missing_users.join(', ')\n};"
+      },
+      "id": "5ee8b544-b097-4783-8819-f44fe382a801",
+      "name": "Log Missing Users1",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        1792
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Get event data from the previous branch\nconst eventNode = $('Route Event Type1');\nif (!eventNode || !eventNode.first()) {\n  throw new Error('Cannot find event data');\n}\n\nconst eventData = eventNode.first().json;\nconst allMappings = $input.all();\n\n// Separate project and user mappings\nconst projectMappings = allMappings.filter(row => \n  row.json.plane_project_id !== undefined && \n  row.json.hubstaff_project_id !== undefined &&\n  row.json.plane_project_id !== \"\"\n);\n\nconst userMappings = allMappings.filter(row => \n  row.json.email !== undefined && \n  row.json.hid !== undefined &&\n  row.json.email !== \"\"\n);\n\n// Find project mapping\nconst projectMapping = projectMappings.find(row => \n  row.json.plane_project_id === eventData.plane_project_id\n);\n\nif (!projectMapping) {\n  return {\n    ...eventData,\n    error: true,\n    error_message: 'Project mapping not found for: ' + eventData.plane_project_id,\n    has_missing_users: true,\n    missing_users: ['Project not mapped']\n  };\n}\n\n// Map all assignee emails to Hubstaff user IDs\nconst assigneeHubstaffIds = [];\nconst missingUsers = [];\n\n// Ensure assignee_emails is an array\nconst assigneeEmails = Array.isArray(eventData.assignee_emails) \n  ? eventData.assignee_emails \n  : (eventData.assignee_emails ? [eventData.assignee_emails] : []);\n\nif (assigneeEmails.length > 0) {\n  for (const email of assigneeEmails) {\n    const userMapping = userMappings.find(row => \n      row.json.email && row.json.email.toLowerCase().trim() === email.toLowerCase().trim()\n    );\n    \n    if (userMapping && userMapping.json.hid) {\n      assigneeHubstaffIds.push({\n        email: email,\n        hubstaff_user_id: String(userMapping.json.hid)\n      });\n    } else {\n      missingUsers.push(email);\n    }\n  }\n}\n\nreturn {\n  ...eventData,\n  hubstaff_project_id: projectMapping.json.hubstaff_project_id,\n  plane_project_name: projectMapping.json.plane_project_name,\n  assignee_mappings: assigneeHubstaffIds,\n  missing_users: missingUsers,\n  has_missing_users: missingUsers.length > 0\n};"
+      },
+      "id": "8ec25818-16ce-4bf7-8cb5-94aab0057536",
+      "name": "Check Assignee Mappings",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2192,
+        1696
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "project",
+        "projectOperation": "update",
+        "projectIdUpdate": "={{$json.hubstaff_project_id}}",
+        "name": "={{$json.plane_project_name}}",
+        "billable": false,
+        "additionalFields": {
+          "members": {
+            "memberValues": "={{ $json.members_payload }}"
+          }
+        }
+      },
+      "type": "n8n-nodes-hubstaff2.hubstaff2",
+      "typeVersion": 1,
+      "position": [
+        3536,
+        1488
+      ],
+      "id": "351d8123-89df-414b-9d76-5998b44ae37f",
+      "name": "Update Project Members (Add/Remove)",
+      "credentials": {
+        "hubstaffApi1": {
+          "id": "umuZKJcN78M23uhY",
+          "name": "Hubstaff V2 account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Project Mapping Exists?": {
+      "main": [
+        [
+          {
+            "node": "Merge Task Data1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Project (for Issue)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Excel Data (Issue Path)": {
+      "main": [
+        [
+          {
+            "node": "Add to Excel (Issue Path)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Excel (Issue Path)": {
+      "main": [
+        [
+          {
+            "node": "Merge Task Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Found?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Task Data1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log User Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log User Not Found": {
+      "main": [
+        [
+          {
+            "node": "Success Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Plane Events1": {
+      "main": [
+        [
+          {
+            "node": "Route Event Type1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Process?1": {
+      "main": [
+        [
+          {
+            "node": "Switch Event Type1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Skip1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Exists?1": {
+      "main": [
+        [
+          {
+            "node": "Log Project Success1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Hubstaff Project1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Excel Data (Project)1": {
+      "main": [
+        [
+          {
+            "node": "Add to Excel (Project)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Excel (Project)1": {
+      "main": [
+        [
+          {
+            "node": "Log Project Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Task Data1": {
+      "main": [
+        [
+          {
+            "node": "User Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Task Data1": {
+      "main": [
+        [
+          {
+            "node": "Create Hubstaff Task1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Hubstaff Task1": {
+      "main": [
+        [
+          {
+            "node": "Log Task Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Project Success1": {
+      "main": [
+        [
+          {
+            "node": "Success Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Task Success1": {
+      "main": [
+        [
+          {
+            "node": "Save Task Mapping to Excel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Skip1": {
+      "main": [
+        [
+          {
+            "node": "Skip Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Combined Mapping": {
+      "main": [
+        [
+          {
+            "node": "Check Issue & User Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Excel Project Mapping1": {
+      "main": [
+        [
+          {
+            "node": "Check Project Exists1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Hubstaff Project1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Excel Data (Project)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Project (for Issue)1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Excel Data (Issue Path)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Issue & User Mapping": {
+      "main": [
+        [
+          {
+            "node": "Project Mapping Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Project Exists1": {
+      "main": [
+        [
+          {
+            "node": "Project Exists?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Event Type1": {
+      "main": [
+        [
+          {
+            "node": "Should Process?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Event Type1": {
+      "main": [
+        [
+          {
+            "node": "Read Excel Project Mapping1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Combined Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Mappings (Assignee Update)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Task Mapping to Excel": {
+      "main": [
+        [
+          {
+            "node": "Success Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Mappings (Assignee Update)1": {
+      "main": [
+        [
+          {
+            "node": "Check Assignee Mappings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Users Mapped?1": {
+      "main": [
+        [
+          {
+            "node": "Get Hubstaff Project Details1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Missing Users1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Hubstaff Project Details1": {
+      "main": [
+        [
+          {
+            "node": "Check Project Members1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Project Members1": {
+      "main": [
+        [
+          {
+            "node": "Need to Add Members?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need to Add Members?1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Member Addition1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Assignee Sync Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Member Addition1": {
+      "main": [
+        [
+          {
+            "node": "Add Members to Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge After Member Add1": {
+      "main": [
+        [
+          {
+            "node": "Log Assignee Sync Success1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Assignee Sync Success1": {
+      "main": [
+        [
+          {
+            "node": "Success Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Assignee Mappings": {
+      "main": [
+        [
+          {
+            "node": "All Users Mapped?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Members to Project": {
+      "main": [
+        [
+          {
+            "node": "Merge After Member Add1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "3062979a77bd0cb0249315d87177e9ffa123d26b463627df125e88f103ee1e1a"
+  }
+}
