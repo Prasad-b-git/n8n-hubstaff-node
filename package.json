@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-hubstaff2",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "description": "Powerful Hubstaff API v2 integration for n8n with automatic token refresh, member management, and comprehensive workflow automation",
   "keywords": [
     "n8n-community-node-package",
@@ -17,11 +17,11 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/n8n-nodes-hubstaff2.git"
+    "url": "git+https://github.com/Prasad-b-git/n8n-hubstaff-node.git"
   },
-  "homepage": "https://github.com/your-username/n8n-nodes-hubstaff2#readme",
+  "homepage": "https://github.com/Prasad-b-git/n8n-hubstaff-node#readme",
   "bugs": {
-    "url": "https://github.com/your-username/n8n-nodes-hubstaff2/issues"
+    "url": "https://github.com/Prasad-b-git/n8n-hubstaff-node/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
